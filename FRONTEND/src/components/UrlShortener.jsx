@@ -31,9 +31,15 @@ const Toast = ({ message, type, onClose }) => {
   );
 };
 
-const DashboardOverviewContent = () => (
+const DashboardOverviewContent = ({user}) => (
+  
   <div className="bg-white p-6 rounded-2xl shadow-md border border-gray-200">
-    <h2 className="text-2xl font-semibold mb-6 text-gray-800">Welcome to your Dashboard!</h2>
+    <h2 className="text-2xl font-semibold mb-6 text-gray-800">Welcome<div className="text-center mt-8">
+  <h1 className="text-3xl md:text-5xl font-extrabold bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-transparent bg-clip-text animate-pulse">
+    Welcome, {user?.name}!
+  </h1>
+  <p className="mt-2 text-sm md:text-base text-gray-500">Glad to see you back on your dashboard 🎉</p>
+</div></h2>
     <p className="text-gray-700">Here you can see a summary of your links and analytics.</p>
     <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <div className="p-4 bg-blue-50 rounded-xl border border-blue-200 text-blue-800 shadow-sm">
@@ -56,9 +62,24 @@ const MyUrlsContent = ({ openQrModal, showToast }) => {
   const [userUrls, setUserUrls] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [username, setUsername] = useState("");
   const API_BASE_URL = 'http://localhost:3000'; 
+  const [users, setUser] = useState(null);
 
   useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      try {
+        const parsedUser = JSON.parse(storedUser);
+        setUser(parsedUser);
+      } catch (err) {
+        console.error("Error parsing user", err);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    
     const fetchUserUrls = async () => {
       try {
         setLoading(true);
@@ -92,7 +113,7 @@ const MyUrlsContent = ({ openQrModal, showToast }) => {
     };
 
     fetchUserUrls();
-  }, [showToast]); 
+  }, []); 
 
   const handleCopy = (text) => {
     if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -935,7 +956,7 @@ const Sidebar = ({ currentPage, setCurrentPage, isMobileSidebarOpen, toggleMobil
   </>
 );
 
-const TopNavbar = ({ currentPageTitle, toggleMobileSidebar }) => (
+const TopNavbar = ({ currentPageTitle, toggleMobileSidebar,user }) => (
   <div className="flex items-center justify-between bg-white shadow-sm p-4 border-b border-gray-200">
     <div className="flex items-center">
       <button onClick={toggleMobileSidebar} className="lg:hidden mr-4 text-gray-600 hover:text-gray-900 p-1 rounded-md">
@@ -947,7 +968,7 @@ const TopNavbar = ({ currentPageTitle, toggleMobileSidebar }) => (
       <div className="relative">
         <button className="flex items-center space-x-2 p-2 rounded-full hover:bg-gray-100 transition-colors duration-200">
           <FaUserCircle className="text-3xl text-gray-600" />
-          <span className="text-gray-700 hidden md:block">John Doe</span>
+          <span className="text-gray-700 hidden md:block">{user?.name}</span>
         </button>
       </div>
       <button className="flex items-center space-x-2 p-2 rounded-xl text-red-600 hover:bg-red-50 transition-colors duration-200">
@@ -983,6 +1004,19 @@ const DashboardUI = () => {
   const [isQrModalOpen, setIsQrModalOpen] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [toast, setToast] = useState(null);
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      try {
+        const parsedUser = JSON.parse(storedUser);
+        setUser(parsedUser);
+      } catch (err) {
+        console.error("Error parsing user", err);
+      }
+    }
+  }, []);
 
   const openQrModal = () => setIsQrModalOpen(true);
   const closeQrModal = () => setIsQrModalOpen(false);
@@ -1026,10 +1060,11 @@ const DashboardUI = () => {
         <TopNavbar
           currentPageTitle={getPageTitle(currentPage)}
           toggleMobileSidebar={toggleMobileSidebar}
+          user={user}
         />
 
         <main className="flex-1 overflow-x-hidden overflow-y-auto p-4 md:p-6">
-          {currentPage === 'Dashboard' && <DashboardOverviewContent />}
+          {currentPage === 'Dashboard' && <DashboardOverviewContent user={user} />}
           {currentPage === 'MyURLs' && <MyUrlsContent openQrModal={openQrModal} showToast={showToast} />}
           {currentPage === 'CreateShortLink' && <CreateShortLinkContent openQrModal={openQrModal} showToast={showToast} />}
           {currentPage === 'CustomAlias' && <CustomAliasContent showToast={showToast} />}

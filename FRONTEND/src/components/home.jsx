@@ -8,6 +8,7 @@ import Navbar from './Navbar';
 const HomePage = () => {
   const [darkMode, setDarkMode] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false); // State for mobile menu
+ 
 
   // Effect to load dark mode preference from local storage or system preference
   useEffect(() => {
