@@ -43,6 +43,7 @@ export const redirectToFullUrl = async (req, res, next) => {
 export const getUserLinks = async (req, res, next) => {
     try {
         const userId = req.user ? req.user._id : null;
+        console.log("user is",req.user);
         if (!userId) {
             return res.status(401).json({ message: 'Unauthorized. Please log in to view your URLs.' });
         }

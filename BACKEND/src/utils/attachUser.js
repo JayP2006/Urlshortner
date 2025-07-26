@@ -3,9 +3,8 @@ import jwt from "jsonwebtoken";
 import { findUserById } from "../dao/user.dao.js";
 
 export const attachUser = async (req, res, next) => {
-    console.log('--- attachUser middleware START ---');
     const token = req.cookies.token;
-    console.log('Token from cookies:', token ? 'Token Found' : 'No Token');
+    console.log("token from back",token)
 
     if (!token) {
         console.log('No token, skipping user attachment.');

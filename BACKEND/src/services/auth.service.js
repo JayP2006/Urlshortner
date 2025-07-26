@@ -45,6 +45,7 @@ export const login_user = async (email, password) => {
             error.statusCode = 401;
             throw error;
         }
+        console.log(user)
         
         const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
@@ -52,6 +53,7 @@ export const login_user = async (email, password) => {
             error.statusCode = 401;
             throw error;
         }
+        console.log(isPasswordValid)
         
         const token = jsonwebtoken.sign(
             { id: user._id },

@@ -23,7 +23,7 @@ const Login = () => {
       const response = await loginUser(email, password);
       
       // Store user data in localStorage for frontend access
-      localStorage.setItem("user", JSON.stringify(response.data.user));   
+      localStorage.setItem("user", JSON.stringify(response.data));   
       toast.success(`Welcome back, ${response.data.user.name}!`);
       setTimeout(() => navigate("/urlshort"), 1500);
     } catch (err) {
