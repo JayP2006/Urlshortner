@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  baseURL: "http://localhost:3000",
+  baseURL: "https://shrinkx-backend.onrender.com",
   withCredentials: true, // This ensures cookies are sent with requests
   headers: {
     "Content-Type": "application/json",

@@ -1591,7 +1591,7 @@ const DashboardUI = () => {
     const [isProtectedLinkModalOpen, setIsProtectedLinkModalOpen] = useState(false);
     const [protectedShortCode, setProtectedShortCode] = useState(null);
 
-    const API_BASE_URL = 'http://localhost:3000';
+    const API_BASE_URL = 'https://shrinkx-backend.onrender.com';
 
     useEffect(() => {
         const storedUser = localStorage.getItem("user");

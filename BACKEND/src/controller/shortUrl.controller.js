@@ -29,7 +29,7 @@ export const createAndShortenUrl = async (req, res, next) => {
             return res.status(400).json({ message: 'Full URL is required.' });
         }
 
-        const appUrl = process.env.APP_URL || 'http://localhost:3000';
+        const appUrl = 'https://shrinkx-backend.onrender.com';
         let generatedShortUrl;
         let qrCodeDataUrl = null;
 
@@ -77,7 +77,7 @@ export const createProtectedAndShortenUrl = async (req, res, next) => {
             return res.status(400).json({ message: 'Full URL and password are required.' });
         }
 
-        const appUrl = process.env.APP_URL || 'http://localhost:3000';
+        const appUrl = 'https://shrinkx-backend.onrender.com';
         let generatedShortUrl;
         let qrCodeDataUrl = null;
 
@@ -127,7 +127,7 @@ export const createLocationBasedLink = async (req, res, next) => {
             return res.status(400).json({ message: 'At least one geo-redirection rule is required.' });
         }
 
-        const appUrl = process.env.APP_URL || 'http://localhost:3000';
+        const appUrl = 'https://shrinkx-backend.onrender.com';
         let generatedShortUrl;
         let qrCodeDataUrl = null;
 
