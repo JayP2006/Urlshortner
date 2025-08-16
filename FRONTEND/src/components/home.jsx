@@ -73,7 +73,7 @@ const HomePage = () => {
             Transform Long Links into <br className="hidden sm:inline" /><span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">Short, Powerful Ones.</span>
           </h2>
           <p className="text-lg sm:text-xl md:text-2xl text-gray-700 dark:text-gray-300 mb-10 max-w-3xl animate-fadeIn" style={{ animationDelay: '0.4s' }}>
-            Shortify empowers you to effortlessly shorten, manage, and track your URLs, unlocking valuable insights with every click.
+            ShrinkX empowers you to effortlessly shorten, manage, and track your URLs, unlocking valuable insights with every click.
           </p>
           <Link
             to="/register"
@@ -85,7 +85,7 @@ const HomePage = () => {
 
         {/* Features Section */}
         <section className="py-24 px-6 md:px-12 bg-gray-50 dark:bg-gray-800 transition-colors duration-500">
-          <h3 className="text-4xl sm:text-5xl font-bold text-center mb-16 text-gray-900 dark:text-white">Why Choose Shortify?</h3>
+          <h3 className="text-4xl sm:text-5xl font-bold text-center mb-16 text-gray-900 dark:text-white">Why Choose ShrinkX?</h3>
           <div className="grid gap-12 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 max-w-7xl mx-auto">
             {/* Feature 1: Instant & Secure Shortening */}
             <div className="p-8 bg-white dark:bg-gray-900 rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 text-center transform hover:-translate-y-2 animate-fadeIn" style={{ animationDelay: '0.8s' }}>
