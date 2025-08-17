@@ -8,35 +8,29 @@
   <a href="https://github.com/your-username/shrinkx"><img src="https://img.shields.io/github/license/your-username/shrinkx?style=for-the-badge" /></a>  
 </p>  
 
-✨ Features
+## ✨ Features  
 
-🔗 Custom Short Links – Generate short, memorable URLs.
+- 🔗 **Custom Short Links** – Generate short, memorable URLs  
+- 🔐 **Protected Links** – Add passwords to restrict access  
+- 🔥 **Fire Links** – Auto-expire after one visit  
+- 📊 **Analytics Dashboard** – Track clicks, location, device & referrer data  
+- 📱 **Responsive UI** – Works seamlessly on desktop & mobile  
+- 🖼 **QR Code Generation** – Instantly generate & download QR codes  
+- 📂 **Link Management** – Edit, delete & organize links easily  
+- ⚡ **Authentication** – Secure login & signup with JWT  
 
-🔐 Protected Links – Add passwords to restrict access.
+---
 
-🔥 Fire Links – Auto-expire after one visit.
+## 🛠️ Tech Stack  
 
-📊 Analytics Dashboard – Track clicks, location, device, and referrer data.
+| Layer        | Technologies |
+|--------------|--------------|
+| **Frontend** | React.js, TailwindCSS, ShadCN UI |
+| **Backend**  | Node.js, Express.js |
+| **Database** | MongoDB (Mongoose ODM) |
+| **Auth**     | JWT (JSON Web Tokens), bcrypt.js |
+| **Deploy**   | Render (Frontend & Backend), MongoDB Atlas |
 
-📱 Responsive UI – Works seamlessly on desktop & mobile.
-
-🖼 QR Code Generation – Instantly generate & download QR codes.
-
-📂 Link Management – Edit, delete, and organize links easily.
-
-⚡ Authentication – Secure login & signup with JWT.
-
-🛠️ Tech Stack
-
-Frontend: React.js, TailwindCSS, ShadCN UI
-
-Backend: Node.js, Express.js
-
-Database: MongoDB (Mongoose ODM)
-
-Authentication: JWT (JSON Web Tokens), bcrypt.js
-
-Deployment: Render / MongoDB Atlas
 
 🚀 Installation & Setup
 
@@ -45,46 +39,39 @@ Clone the repo:
 git clone https://github.com/your-username/shrinkx.git
 cd shrinkx
 
-Backend Setup
+**Backend Setup**
 cd backend
 npm install
 npm run dev
 
 
-Create a .env file inside backend/ with:
+*Create a .env file inside backend/ with*:
 
-PORT=3000
-MONGO_URI=your_mongodb_uri
-JWT_SECRET=your_jwt_secret
-CLIENT_URL=http://localhost:5173
+-PORT=3000
+-MONGO_URI=your_mongodb_uri
+-JWT_SECRET=your_jwt_secret
+-CLIENT_URL=http://localhost:5173
 
-Frontend Setup
+**Frontend Setup**
 cd frontend
 npm install
 npm run dev
 
-
 Now open 👉 http://localhost:5173
 
-📊 Screenshots
-
-👉sceenshots are coming soon...
-
-🌍 Deployment
-
+**🌍 Deployment**
 Frontend: Render
-
 Backend: Render
-
 Database: MongoDB Atlas
 
-🤝 Contributing
+**🤝 Contributing**
 
 Contributions are welcome! Fork the repo and submit a PR.
 
-📜 License
+**📜 License**
 
 MIT License © 2025 [Patel Jaykumar Rakeshbhai]
 
 ⚡ ShrinkX — Shrink smart, share faster.
+
 
