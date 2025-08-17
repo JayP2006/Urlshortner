@@ -1,15 +1,37 @@
 <h1 align="center">🚀 ShrinkX</h1>  
 <p align="center">  
-  <b>ShrinkX is a advanced URL shortener built with the MERN stack. It goes beyond just shortening links — ShrinkX provides analytics, QR code generation, password-protected links, fire links (one-time use), and a modern responsive dashboard for managing all your URLs./b>  
-  <br />  
-  <br />  
-  <a href="https://github.com/your-username/shrinkx"><b>Home Page</b><img src="https://github.com/JayP2006/Urlshortner/blob/main/FRONTEND/public/Screenshot%20(176).png" /></a>  
-  <a href="https://github.com/your-username/shrinkx"><img src="https://github.com/JayP2006/Urlshortner/blob/main/FRONTEND/public/Screenshot%20(177).pnge" /></a>  
-  <a href="https://github.com/your-username/shrinkx"><img src="https://github.com/JayP2006/Urlshortner/blob/main/FRONTEND/public/Screenshot%20(178).png" /></a> 
-  <a href="https://github.com/your-username/shrinkx"><img src="https://github.com/JayP2006/Urlshortner/blob/main/FRONTEND/public/Screenshot%20(179).png" /></a>  
-  <a href="https://github.com/your-username/shrinkx"><img src="https://github.com/JayP2006/Urlshortner/blob/main/FRONTEND/public/Screenshot%20(180).png" /></a>  
-     
+  <b>ShrinkX is an advanced URL shortener built with the MERN stack. It goes beyond just shortening links — ShrinkX provides analytics, QR code generation, password-protected links, fire links (one-time use), and a modern responsive dashboard for managing all your URLs.</b>  
 </p>  
+
+---
+
+## 📸 Screenshots  
+
+<p align="center">  
+  <b>🏠 Home Page</b><br/>  
+  <img src="https://github.com/JayP2006/Urlshortner/blob/main/FRONTEND/public/Screenshot%20(176).png" width="800"/>  
+</p>  
+
+<p align="center">  
+  <b>🔗 URL Shortening Dashboard</b><br/>  
+  <img src="https://github.com/JayP2006/Urlshortner/blob/main/FRONTEND/public/Screenshot%20(177).png" width="800"/>  
+</p>  
+
+<p align="center">  
+  <b>📊 Analytics Page</b><br/>  
+  <img src="https://github.com/JayP2006/Urlshortner/blob/main/FRONTEND/public/Screenshot%20(178).png" width="800"/>  
+</p>  
+
+<p align="center">  
+  <b>🖼 QR Code Generator</b><br/>  
+  <img src="https://github.com/JayP2006/Urlshortner/blob/main/FRONTEND/public/Screenshot%20(179).png" width="800"/>  
+</p>  
+
+<p align="center">  
+  <b>⚙️ Settings / Profile Page</b><br/>  
+  <img src="https://github.com/JayP2006/Urlshortner/blob/main/FRONTEND/public/Screenshot%20(180).png" width="800"/>  
+</p>  
+
 
 ## ✨ Features  
 
@@ -79,6 +101,7 @@ Contributions are welcome! Fork the repo and submit a PR.
 MIT License © 2025 [Patel Jaykumar Rakeshbhai]
 
 ⚡ ShrinkX — Shrink smart, share faster.
+
 
 
 
