@@ -265,7 +265,7 @@ const MyUrlsContent = ({ openQrModal, showToast, API_BASE_URL, openProtectedLink
                         userUrls.map((url) => (
                             <tr key={url._id}>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600 hover:underline">
-                                    <a href={`${API_BASE_URL}/${url.short_url}`} target="_blank" rel="noopener noreferrer">
+                                    <a href={`shrinkx.onrender.com/${url.short_url}`} target="_blank" rel="noopener noreferrer">
                                         {`${API_BASE_URL.replace('http://', '')}/${url.short_url}`}
                                     </a>
                                     {url.password && <MdLock className="inline-block ml-2 text-yellow-600" title="Protected" />}
