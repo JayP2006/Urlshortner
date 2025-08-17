@@ -13,24 +13,25 @@
 </p>  
 
 <p align="center">  
-  <b>🔗 URL Shortening Dashboard</b><br/>  
+  <b>📂 Dashboard</b><br/>  
   <img src="https://github.com/JayP2006/Urlshortner/blob/main/FRONTEND/public/Screenshot%20(177).png" width="800"/>  
 </p>  
 
 <p align="center">  
-  <b>📊 Analytics Page</b><br/>  
+  <b>✂️ Shorten URL Page</b><br/>  
   <img src="https://github.com/JayP2006/Urlshortner/blob/main/FRONTEND/public/Screenshot%20(178).png" width="800"/>  
 </p>  
 
 <p align="center">  
-  <b>🖼 QR Code Generator</b><br/>  
+  <b>📊 Analytics Page</b><br/>  
   <img src="https://github.com/JayP2006/Urlshortner/blob/main/FRONTEND/public/Screenshot%20(179).png" width="800"/>  
 </p>  
 
 <p align="center">  
-  <b>⚙️ Settings / Profile Page</b><br/>  
+  <b>🔗 My URLs Page</b><br/>  
   <img src="https://github.com/JayP2006/Urlshortner/blob/main/FRONTEND/public/Screenshot%20(180).png" width="800"/>  
 </p>  
+
 
 
 ## ✨ Features  
@@ -101,6 +102,7 @@ Contributions are welcome! Fork the repo and submit a PR.
 MIT License © 2025 [Patel Jaykumar Rakeshbhai]
 
 ⚡ ShrinkX — Shrink smart, share faster.
+
 
 
 
