@@ -1,6 +1,12 @@
-🚀 ShrinkX - Advanced URL Shortener
-
-ShrinkX is a advanced URL shortener built with the MERN stack. It goes beyond just shortening links — ShrinkX provides analytics, QR code generation, password-protected links, fire links (one-time use), and a modern responsive dashboard for managing all your URLs.
+<h1 align="center">🚀 ShrinkX</h1>  
+<p align="center">  
+  <b>ShrinkX is a advanced URL shortener built with the MERN stack. It goes beyond just shortening links — ShrinkX provides analytics, QR code generation, password-protected links, fire links (one-time use), and a modern responsive dashboard for managing all your URLs./b>  
+  <br />  
+  <br />  
+  <a href="https://github.com/your-username/shrinkx"><img src="https://img.shields.io/github/stars/your-username/shrinkx?style=for-the-badge" /></a>  
+  <a href="https://github.com/your-username/shrinkx"><img src="https://img.shields.io/github/forks/your-username/shrinkx?style=for-the-badge" /></a>  
+  <a href="https://github.com/your-username/shrinkx"><img src="https://img.shields.io/github/license/your-username/shrinkx?style=for-the-badge" /></a>  
+</p>  
 
 ✨ Features
 
@@ -81,3 +87,4 @@ Contributions are welcome! Fork the repo and submit a PR.
 MIT License © 2025 [Patel Jaykumar Rakeshbhai]
 
 ⚡ ShrinkX — Shrink smart, share faster.
+
