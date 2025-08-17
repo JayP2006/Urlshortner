@@ -23,7 +23,7 @@ const AdvancedNavbar = ({ darkMode, setDarkMode, menuOpen, setMenuOpen, scrollTo
         >
           Features
         </button>
-        <Link to="/pricing" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">
+        <Link to="/" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">
           Pricing
         </Link>
         <Link to="/contact" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">
