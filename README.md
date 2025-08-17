@@ -9,7 +9,7 @@
 
 <p align="center">  
   <b>🏠 Home Page</b><br/>  
-  <img src="https://github.com/JayP2006/Urlshortner/blob/main/FRONTEND/public/Screenshot%20(176).png" width="800"/>  
+  <img src="https://github.com/JayP2006/Urlshortner/blob/main/FRONTEND/public/Screenshot%20(181).png" width="800"/>  
 </p>  
 
 <p align="center">  
@@ -102,6 +102,7 @@ Contributions are welcome! Fork the repo and submit a PR.
 MIT License © 2025 [Patel Jaykumar Rakeshbhai]
 
 ⚡ ShrinkX — Shrink smart, share faster.
+
 
 
 
