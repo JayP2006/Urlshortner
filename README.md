@@ -31,7 +31,7 @@
 | **Auth**     | JWT (JSON Web Tokens), bcrypt.js |
 | **Deploy**   | Render (Frontend & Backend), MongoDB Atlas |
 
-
+---
 🚀 Installation & Setup
 
 Clone the repo:
@@ -59,19 +59,23 @@ npm run dev
 
 Now open 👉 http://localhost:5173
 
+---
 **🌍 Deployment**
 Frontend: Render
 Backend: Render
 Database: MongoDB Atlas
 
+---
 **🤝 Contributing**
 
 Contributions are welcome! Fork the repo and submit a PR.
 
+---
 **📜 License**
 
 MIT License © 2025 [Patel Jaykumar Rakeshbhai]
 
 ⚡ ShrinkX — Shrink smart, share faster.
+
 
 
