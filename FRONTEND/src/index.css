@@ -149,3 +149,10 @@
     box-shadow: var(--shadow-medium);
   }
 }
+
+
+/* Dark mode */
+.dark .cta-btn {
+  background-color: white;
+  color: black;
+}

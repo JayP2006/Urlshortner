@@ -231,7 +231,7 @@ const HomePage = () => {
             <div className="relative group animate-scaleIn" style={{ animationDelay: '0.6s' }}>
               <Link
                 to="/register"
-                className="relative bg-black text-white px-12 py-5 rounded-full text-xl font-semibold shadow-2xl hover:bg-black/90 transition-all duration-300"
+                className="cta-btn  relative bg-black text-white px-12 py-5 rounded-full text-xl font-semibold shadow-2xl transition-all duration-300"
               >
                 Get Started for Free
               </Link>
