@@ -173,7 +173,7 @@ const DashboardOverviewContent = ({ user, API_BASE_URL }) => {
             recentActivity.map(a => (
               <div key={a._id} className="flex justify-between py-1 text-sm">
                 <span>
-                  /{a.urlId?.shortCode} → {a.clicks} clicks
+                  /{a.urlId?.short_url} → {a.clicks} clicks
                 </span>
                 <span className="text-gray-400">
                   {a.hour}:00
