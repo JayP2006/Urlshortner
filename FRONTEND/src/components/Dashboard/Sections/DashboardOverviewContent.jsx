@@ -3,7 +3,6 @@ import { motion } from "framer-motion";
 import {
   MdTrendingUp,
   MdCheckCircle,
-  MdSpeed,
   MdInsertLink,
   MdBarChart
 } from "https://esm.sh/react-icons/md";
@@ -14,6 +13,14 @@ import {
   XAxis,
   Tooltip
 } from "recharts";
+
+/* ------------------ Small helpers ------------------ */
+const timeAgo = (date) => {
+  const diff = Math.floor((Date.now() - new Date(date)) / 60000);
+  if (diff < 1) return "just now";
+  if (diff < 60) return `${diff} min ago`;
+  return `${Math.floor(diff / 60)} hr ago`;
+};
 
 const StatCard = ({ title, value, icon: Icon, loading }) => (
   <motion.div
@@ -32,29 +39,40 @@ const StatCard = ({ title, value, icon: Icon, loading }) => (
   </motion.div>
 );
 
+/* ------------------ MAIN COMPONENT ------------------ */
 const DashboardOverviewContent = ({ user, API_BASE_URL }) => {
   const [stats, setStats] = useState(null);
   const [hourlyData, setHourlyData] = useState([]);
+  const [recentLinks, setRecentLinks] = useState([]);
+  const [recentActivity, setRecentActivity] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const load = async () => {
       try {
         setLoading(true);
-        const res = await fetch(
-          `${API_BASE_URL}/api/url/analytics/summary`,
-          { credentials: "include" }
-        );
-        const data = await res.json();
 
-        const hrs = await fetch(
-          `${API_BASE_URL}/api/url/analytics/summary/hourly`,
-          { credentials: "include" }
-        );
-        const hourly = await hrs.json();
+        const [summaryRes, hourlyRes, linksRes, activityRes] =
+          await Promise.all([
+            fetch(`${API_BASE_URL}/api/url/analytics/summary`, {
+              credentials: "include"
+            }),
+            fetch(`${API_BASE_URL}/api/url/analytics/summary/hourly`, {
+              credentials: "include"
+            }),
+            fetch(`${API_BASE_URL}/api/url/analytics/recent-links`, {
+              credentials: "include"
+            }),
+            fetch(`${API_BASE_URL}/api/url/analytics/recent-activity`, {
+              credentials: "include"
+            })
+          ]);
 
-        setStats(data);
-        setHourlyData(hourly);
+        setStats(await summaryRes.json());
+        setHourlyData(await hourlyRes.json());
+        setRecentLinks(await linksRes.json());
+        setRecentActivity(await activityRes.json());
+
       } catch (e) {
         console.error(e);
       } finally {
@@ -76,11 +94,11 @@ const DashboardOverviewContent = ({ user, API_BASE_URL }) => {
           Welcome, {user?.name}
         </h1>
         <p className="text-gray-500 mt-1">
-          Live performance overview
+          Live data from your existing analytics
         </p>
       </div>
 
-      {/* KPIs */}
+      {/* CORE STATS */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         <StatCard
           title="Total Clicks"
@@ -95,14 +113,14 @@ const DashboardOverviewContent = ({ user, API_BASE_URL }) => {
           loading={loading}
         />
         <StatCard
-          title="CTR"
-          value={stats?.ctr}
-          icon={MdSpeed}
+          title="Total Links"
+          value={stats?.totalLinks}
+          icon={MdInsertLink}
           loading={loading}
         />
       </div>
 
-      {/* CHART */}
+      {/* HOURLY CHART */}
       <div className="bg-white rounded-2xl border p-6">
         <h3 className="flex items-center gap-2 font-semibold mb-4">
           <MdBarChart className="text-indigo-500" />
@@ -111,7 +129,7 @@ const DashboardOverviewContent = ({ user, API_BASE_URL }) => {
 
         {hourlyData.length === 0 ? (
           <div className="h-40 flex items-center justify-center text-gray-400">
-            No traffic yet today
+            No clicks yet today
           </div>
         ) : (
           <div className="h-52">
@@ -126,6 +144,47 @@ const DashboardOverviewContent = ({ user, API_BASE_URL }) => {
         )}
       </div>
 
+      {/* RAW ACTIVITY (FROM EXISTING MODELS) */}
+      <div className="grid md:grid-cols-2 gap-6">
+
+        {/* RECENT LINKS */}
+        <div className="bg-white border rounded-xl p-5">
+          <h3 className="font-semibold mb-4">New Links</h3>
+          {recentLinks.length === 0 ? (
+            <p className="text-gray-400 text-sm">No links created yet</p>
+          ) : (
+            recentLinks.map(l => (
+              <div key={l._id} className="flex justify-between py-1 text-sm">
+                <span className="text-indigo-600">/{l.shortCode}</span>
+                <span className="text-gray-400">
+                  {timeAgo(l.createdAt)}
+                </span>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* RECENT ACTIVITY (HOURLY) */}
+        <div className="bg-white border rounded-xl p-5">
+          <h3 className="font-semibold mb-4">Recent Activity</h3>
+          {recentActivity.length === 0 ? (
+            <p className="text-gray-400 text-sm">No activity yet</p>
+          ) : (
+            recentActivity.map(a => (
+              <div key={a._id} className="flex justify-between py-1 text-sm">
+                <span>
+                  /{a.urlId?.shortCode} → {a.clicks} clicks
+                </span>
+                <span className="text-gray-400">
+                  {a.hour}:00
+                </span>
+              </div>
+            ))
+          )}
+        </div>
+
+      </div>
+
       {/* CTA */}
       <div className="bg-indigo-600 rounded-2xl p-6 text-white flex items-center justify-between">
         <div>
@@ -133,7 +192,7 @@ const DashboardOverviewContent = ({ user, API_BASE_URL }) => {
             Create your next link
           </h3>
           <p className="text-indigo-200 text-sm">
-            Start tracking clicks instantly
+            Everything here is driven by real backend data
           </p>
         </div>
 
