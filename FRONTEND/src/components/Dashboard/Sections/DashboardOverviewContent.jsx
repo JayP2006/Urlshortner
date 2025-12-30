@@ -14,32 +14,49 @@ import {
   Tooltip
 } from "recharts";
 
-/* ------------------ Small helpers ------------------ */
+/* ---------------- TIME HELPERS ---------------- */
+
+// For createdAt (exact timestamp)
 const timeAgo = (date) => {
-  const diff = Math.floor((Date.now() - new Date(date)) / 60000);
-  if (diff < 1) return "just now";
-  if (diff < 60) return `${diff} min ago`;
-  return `${Math.floor(diff / 60)} hr ago`;
+  const diffMs = Date.now() - new Date(date).getTime();
+  const mins = Math.floor(diffMs / 60000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins} min ago`;
+
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs} hour${hrs > 1 ? "s" : ""} ago`;
+
+  const days = Math.floor(hrs / 24);
+  return `${days} day${days > 1 ? "s" : ""} ago`;
 };
+
+// For ClickStat (date + hour bucket)
+const timeAgoFromHour = (date, hour) => {
+  const d = new Date(`${date}T${String(hour).padStart(2, "0")}:00:00`);
+  return timeAgo(d);
+};
+
+/* ---------------- SMALL UI COMPONENTS ---------------- */
 
 const StatCard = ({ title, value, icon: Icon, loading }) => (
   <motion.div
-    initial={{ opacity: 0, y: 10 }}
+    initial={{ opacity: 0, y: 12 }}
     animate={{ opacity: 1, y: 0 }}
-    className="bg-white rounded-xl border p-5 shadow-sm"
+    className="bg-white rounded-2xl border p-6 shadow-sm hover:shadow-md transition"
   >
     <div className="flex items-center justify-between">
       <p className="text-sm text-gray-500">{title}</p>
       <Icon className="text-xl text-indigo-500" />
     </div>
 
-    <div className="mt-3 text-3xl font-bold text-gray-900">
+    <div className="mt-4 text-4xl font-extrabold text-gray-900">
       {loading ? "—" : value}
     </div>
   </motion.div>
 );
 
-/* ------------------ MAIN COMPONENT ------------------ */
+/* ---------------- MAIN COMPONENT ---------------- */
+
 const DashboardOverviewContent = ({ user, API_BASE_URL }) => {
   const [stats, setStats] = useState(null);
   const [hourlyData, setHourlyData] = useState([]);
@@ -52,27 +69,22 @@ const DashboardOverviewContent = ({ user, API_BASE_URL }) => {
       try {
         setLoading(true);
 
-        const [summaryRes, hourlyRes, linksRes, activityRes] =
-          await Promise.all([
-            fetch(`${API_BASE_URL}/api/url/analytics/summary`, {
-              credentials: "include"
-            }),
-            fetch(`${API_BASE_URL}/api/url/analytics/summary/hourly`, {
-              credentials: "include"
-            }),
-            fetch(`${API_BASE_URL}/api/url/analytics/recent-links`, {
-              credentials: "include"
-            }),
-            fetch(`${API_BASE_URL}/api/url/analytics/recent-activity`, {
-              credentials: "include"
-            })
-          ]);
+        const [
+          summaryRes,
+          hourlyRes,
+          linksRes,
+          activityRes
+        ] = await Promise.all([
+          fetch(`${API_BASE_URL}/api/url/analytics/summary`, { credentials: "include" }),
+          fetch(`${API_BASE_URL}/api/url/analytics/summary/hourly`, { credentials: "include" }),
+          fetch(`${API_BASE_URL}/api/url/analytics/recent-links`, { credentials: "include" }),
+          fetch(`${API_BASE_URL}/api/url/analytics/recent-activity`, { credentials: "include" })
+        ]);
 
         setStats(await summaryRes.json());
         setHourlyData(await hourlyRes.json());
         setRecentLinks(await linksRes.json());
         setRecentActivity(await activityRes.json());
-
       } catch (e) {
         console.error(e);
       } finally {
@@ -81,102 +93,90 @@ const DashboardOverviewContent = ({ user, API_BASE_URL }) => {
     };
 
     load();
-    const i = setInterval(load, 30000);
-    return () => clearInterval(i);
+    const interval = setInterval(load, 30000);
+    return () => clearInterval(interval);
   }, [API_BASE_URL]);
 
   return (
     <div className="space-y-10">
 
       {/* HEADER */}
-      <div className="bg-white rounded-2xl border p-8">
-        <h1 className="text-3xl font-bold text-gray-900">
-          Welcome, {user?.name}
+      <div className="bg-white rounded-3xl border p-8">
+        <h1 className="text-4xl font-extrabold text-gray-900">
+          Welcome back, {user?.name}
         </h1>
-        <p className="text-gray-500 mt-1">
-          Live data from your existing analytics
+        <p className="text-gray-500 mt-2">
+          Real-time overview powered by live backend data
         </p>
       </div>
 
-      {/* CORE STATS */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-        <StatCard
-          title="Total Clicks"
-          value={stats?.totalClicks}
-          icon={MdTrendingUp}
-          loading={loading}
-        />
-        <StatCard
-          title="Active Links"
-          value={stats?.activeLinks}
-          icon={MdCheckCircle}
-          loading={loading}
-        />
-        <StatCard
-          title="Total Links"
-          value={stats?.totalLinks}
-          icon={MdInsertLink}
-          loading={loading}
-        />
+      {/* STATS */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <StatCard title="Total Clicks" value={stats?.totalClicks} icon={MdTrendingUp} loading={loading} />
+        <StatCard title="Active Links" value={stats?.activeLinks} icon={MdCheckCircle} loading={loading} />
+        <StatCard title="Total Links" value={stats?.totalLinks} icon={MdInsertLink} loading={loading} />
       </div>
 
       {/* HOURLY CHART */}
-      <div className="bg-white rounded-2xl border p-6">
+      <div className="bg-white rounded-3xl border p-6">
         <h3 className="flex items-center gap-2 font-semibold mb-4">
           <MdBarChart className="text-indigo-500" />
           Click Activity (Today)
         </h3>
 
         {hourlyData.length === 0 ? (
-          <div className="h-40 flex items-center justify-center text-gray-400">
-            No clicks yet today
+          <div className="h-44 flex items-center justify-center text-gray-400">
+            No traffic yet today
           </div>
         ) : (
-          <div className="h-52">
+          <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={hourlyData}>
                 <XAxis dataKey="hour" stroke="#94A3B8" />
                 <Tooltip />
-                <Bar dataKey="clicks" fill="#6366F1" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="clicks" fill="#6366F1" radius={[10, 10, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
         )}
       </div>
 
-      {/* RAW ACTIVITY (FROM EXISTING MODELS) */}
+      {/* ACTIVITY SECTIONS */}
       <div className="grid md:grid-cols-2 gap-6">
 
-        {/* RECENT LINKS */}
-        <div className="bg-white border rounded-xl p-5">
+        {/* NEW LINKS */}
+        <div className="bg-white rounded-2xl border p-6">
           <h3 className="font-semibold mb-4">New Links</h3>
+
           {recentLinks.length === 0 ? (
             <p className="text-gray-400 text-sm">No links created yet</p>
           ) : (
-            recentLinks.map(l => (
-              <div key={l._id} className="flex justify-between py-1 text-sm">
-                <span className="text-indigo-600">/{l.shortCode}</span>
-                <span className="text-gray-400">
-                  {timeAgo(l.createdAt)}
-                </span>
+            recentLinks.map(link => (
+              <div key={link._id} className="flex justify-between py-2 text-sm border-b last:border-none">
+                <span className="font-medium text-indigo-600">/{link.short_url}</span>
+                <span className="text-gray-400">{timeAgo(link.createdAt)}</span>
               </div>
             ))
           )}
         </div>
 
-        {/* RECENT ACTIVITY (HOURLY) */}
-        <div className="bg-white border rounded-xl p-5">
+        {/* RECENT ACTIVITY */}
+        <div className="bg-white rounded-2xl border p-6">
           <h3 className="font-semibold mb-4">Recent Activity</h3>
+
           {recentActivity.length === 0 ? (
             <p className="text-gray-400 text-sm">No activity yet</p>
           ) : (
             recentActivity.map(a => (
-              <div key={a._id} className="flex justify-between py-1 text-sm">
+              <div key={a._id} className="flex justify-between py-2 text-sm border-b last:border-none">
                 <span>
-                  /{a.urlId?.short_url} → {a.clicks} clicks
+                  <span className="font-medium text-indigo-600">
+                    /{a.urlId?.short_url}
+                  </span>{" "}
+                  received {a.clicks} clicks
                 </span>
                 <span className="text-gray-400">
-                  {a.hour}:00
+                  {timeAgoFromHour(a.date, a.hour)}
                 </span>
               </div>
             ))
@@ -186,17 +186,17 @@ const DashboardOverviewContent = ({ user, API_BASE_URL }) => {
       </div>
 
       {/* CTA */}
-      <div className="bg-indigo-600 rounded-2xl p-6 text-white flex items-center justify-between">
+      <div className="bg-indigo-600 rounded-3xl p-6 text-white flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-semibold">
+          <h3 className="text-xl font-semibold">
             Create your next link
           </h3>
           <p className="text-indigo-200 text-sm">
-            Everything here is driven by real backend data
+            Everything here updates automatically from real analytics
           </p>
         </div>
 
-        <button className="bg-white text-indigo-600 px-5 py-2 rounded-lg font-semibold flex items-center gap-2">
+        <button className="bg-white text-indigo-600 px-6 py-2 rounded-xl font-semibold flex items-center gap-2 hover:scale-105 transition">
           <MdInsertLink />
           New Link
         </button>
