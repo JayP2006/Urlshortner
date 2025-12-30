@@ -1,188 +1,149 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { 
-    MdInsertLink, MdTrendingUp, MdCheckCircle, MdSpeed, MdArrowUpward, MdKeyboardArrowDown,
-    MdPeopleOutline, MdFlag, MdOutlineOpenInNew, MdBarChart
-} from 'https://esm.sh/react-icons/md';
+import {
+  MdTrendingUp,
+  MdCheckCircle,
+  MdSpeed,
+  MdInsertLink,
+  MdBarChart
+} from "https://esm.sh/react-icons/md";
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  Tooltip
+} from "recharts";
 
-import { 
-    LineChart, Line, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis, PieChart, Pie, Cell 
-} from 'recharts'; 
-
-
-const SkeletonLoader = ({ height = 'h-4', width = 'w-3/4' }) => (
-    <div className={`animate-pulse bg-gray-200 rounded ${height} ${width}`}></div>
-);
-
-const PremiumKpiCard = ({ title, value, loading, icon: Icon, sparklineData, subMetric, accentColor }) => {
-    return (
-        <motion.div
-            className={`bg-white p-6 rounded-xl shadow-sm border border-gray-200 transition duration-200 hover:shadow-lg cursor-pointer`}
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-        >
-            <div className="flex flex-col">
-                <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-sm font-medium uppercase tracking-wider text-gray-500">{title}</h3>
-                    <div className={`p-2 rounded-lg bg-${accentColor}-50 text-${accentColor}-600`}>
-                        <Icon className="text-xl" />
-                    </div>
-                </div>
-
-                <p className="text-4xl font-extrabold text-gray-900">
-                    {loading ? <SkeletonLoader width="w-24" height="h-10"/> : value}
-                </p>
-
-                <div className="mt-4 flex items-center justify-between h-8">
-                    {subMetric && (
-                        <p className={`text-xs font-semibold flex items-center ${subMetric.isPositive ? 'text-teal-600' : 'text-red-500'}`}>
-                            {!loading && subMetric.isPositive ? <MdArrowUpward className="mr-1 h-3 w-3"/> : <MdKeyboardArrowDown className="mr-1 h-3 w-3"/>}
-                            {!loading ? subMetric.value : <SkeletonLoader width="w-14" height="h-3"/>}
-                        </p>
-                    )}
-
-                    {/* Sparkline */}
-                    {sparklineData && (
-                        <div className="w-1/3 opacity-70">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <LineChart data={sparklineData}>
-                                    <Line type="monotone" dataKey="clicks" stroke="#6366F1" strokeWidth={2} dot={false}/>
-                                </LineChart>
-                            </ResponsiveContainer>
-                        </div>
-                    )}
-                </div>
-            </div>
-        </motion.div>
-    );
-};
-
-const MiniDonutChart = ({ data }) => (
-    <div className="h-28">
-        <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-                <Pie data={data} innerRadius={40} outerRadius={55} dataKey="value">
-                    {data.map((v,i)=> <Cell key={i} fill={v.color}/>)}
-                </Pie>
-                <Tooltip/>
-            </PieChart>
-        </ResponsiveContainer>
+const StatCard = ({ title, value, icon: Icon, loading }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 10 }}
+    animate={{ opacity: 1, y: 0 }}
+    className="bg-white rounded-xl border p-5 shadow-sm"
+  >
+    <div className="flex items-center justify-between">
+      <p className="text-sm text-gray-500">{title}</p>
+      <Icon className="text-xl text-indigo-500" />
     </div>
+
+    <div className="mt-3 text-3xl font-bold text-gray-900">
+      {loading ? "—" : value}
+    </div>
+  </motion.div>
 );
 
 const DashboardOverviewContent = ({ user, API_BASE_URL }) => {
+  const [stats, setStats] = useState(null);
+  const [hourlyData, setHourlyData] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-    const [stats, setStats] = useState({ totalLinks:0, totalClicks:0, activeLinks:0, ctr:"0%", clickGrowth:0, dailyTraffic:0 });
-    const [hourlyData, setHourlyData] = useState([]);  // 🔥 LIVE CHART DATA
-    const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    const load = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch(
+          `${API_BASE_URL}/api/url/analytics/summary`,
+          { credentials: "include" }
+        );
+        const data = await res.json();
 
-    useEffect(() => {
-        const loadDashboard = async () => {
-            try {
-                setLoading(true);
+        const hrs = await fetch(
+          `${API_BASE_URL}/api/url/analytics/summary/hourly`,
+          { credentials: "include" }
+        );
+        const hourly = await hrs.json();
 
-                // Fetch summary
-                const res = await fetch(`${API_BASE_URL}/api/url/analytics/summary`, { credentials:"include" });
-                const meta = await res.json();
+        setStats(data);
+        setHourlyData(hourly);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-                // Fetch hourly click analytics LIVE 🔥
-                const hrs = await fetch(`${API_BASE_URL}/api/url/analytics/summary/hourly`, { credentials:"include" });
-                const hourly = await hrs.json();
+    load();
+    const i = setInterval(load, 30000);
+    return () => clearInterval(i);
+  }, [API_BASE_URL]);
 
-                setHourlyData(hourly);
+  return (
+    <div className="space-y-10">
 
-                setStats({
-                    totalLinks: meta.totalLinks,
-                    totalClicks: meta.totalClicks,
-                    activeLinks: meta.activeLinks,
-                    ctr:"4.2%",
-                    clickGrowth: 8.5,
-                    dailyTraffic: 1540
-                });
+      {/* HEADER */}
+      <div className="bg-white rounded-2xl border p-8">
+        <h1 className="text-3xl font-bold text-gray-900">
+          Welcome, {user?.name}
+        </h1>
+        <p className="text-gray-500 mt-1">
+          Live performance overview
+        </p>
+      </div>
 
-            } catch(e){ console.log(e) }
-            finally{ setLoading(false) }
-        }
+      {/* KPIs */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <StatCard
+          title="Total Clicks"
+          value={stats?.totalClicks}
+          icon={MdTrendingUp}
+          loading={loading}
+        />
+        <StatCard
+          title="Active Links"
+          value={stats?.activeLinks}
+          icon={MdCheckCircle}
+          loading={loading}
+        />
+        <StatCard
+          title="CTR"
+          value={stats?.ctr}
+          icon={MdSpeed}
+          loading={loading}
+        />
+      </div>
 
-        loadDashboard();
-        const live = setInterval(loadDashboard, 30000); // Auto-refresh 30s
-        return () => clearInterval(live);
+      {/* CHART */}
+      <div className="bg-white rounded-2xl border p-6">
+        <h3 className="flex items-center gap-2 font-semibold mb-4">
+          <MdBarChart className="text-indigo-500" />
+          Click Activity (Today)
+        </h3>
 
-    }, [API_BASE_URL]);
+        {hourlyData.length === 0 ? (
+          <div className="h-40 flex items-center justify-center text-gray-400">
+            No traffic yet today
+          </div>
+        ) : (
+          <div className="h-52">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={hourlyData}>
+                <XAxis dataKey="hour" stroke="#94A3B8" />
+                <Tooltip />
+                <Bar dataKey="clicks" fill="#6366F1" radius={[6, 6, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        )}
+      </div>
 
-    const kpi = [
-        { title:"Total Clicks", value:stats.totalClicks, icon:MdTrendingUp, subMetric:{value:`+${stats.clickGrowth}%`, isPositive:true}, accentColor:"indigo" },
-        { title:"Daily Traffic", value:stats.dailyTraffic, icon:MdPeopleOutline, subMetric:{value:`CTR ${stats.ctr}`, isPositive:true}, accentColor:"blue" },
-        { title:"Active Links", value:stats.activeLinks, icon:MdCheckCircle, subMetric:{value:`of ${stats.totalLinks}`, isPositive:true}, accentColor:"teal" },
-        { title:"Click Through Rate", value:stats.ctr, icon:MdSpeed, subMetric:{value:"Benchmark 3.5%", isPositive:true}, accentColor:"orange" }
-    ];
-
-    return (
-        <div className="space-y-10">
-
-
-            <motion.div className="p-8 bg-white rounded-2xl shadow-sm border"
-                initial={{opacity:0,y:-20}} animate={{opacity:1,y:0}}>
-
-                <h1 className="text-4xl font-extrabold">Welcome back, {user?.name}</h1>
-                <p className="text-gray-500">Your traffic is updating live 🔥</p>
-            </motion.div>
-
-
-            <div>
-                <h2 className="font-semibold mb-3 text-gray-700">Real-Time Metrics</h2>
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
-                    {kpi.map((c,i)=>(
-                        <PremiumKpiCard key={i} {...c} loading={loading}/>
-                    ))}
-                </div>
-            </div>
-
-            <motion.div className="bg-white p-6 rounded-2xl shadow-sm border"
-                initial={{opacity:0,y:20}} animate={{opacity:1,y:0}}>
-
-                <h3 className="font-semibold text-lg mb-3 flex items-center">
-                    <MdBarChart className="text-indigo-500 mr-2"/> Hourly Click Distribution (Live)
-                </h3>
-
-                <div className="h-52">
-                    <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={hourlyData}>
-                            <XAxis dataKey="hour" stroke="#64748B"/>
-                            <YAxis hide/>
-                            <Tooltip/>
-                            <Bar dataKey="clicks" fill="#6366F1" radius={[6,6,0,0]}/>
-                        </BarChart>
-                    </ResponsiveContainer>
-                </div>
-            </motion.div>
-
-
-        
-            <div className="grid md:grid-cols-2 gap-5">
-
-                <div className="bg-white p-6 rounded-xl border shadow-sm">
-                    <h3 className="font-semibold mb-3"><MdFlag className="inline mr-1"/> Top Geos</h3>
-                    <MiniDonutChart data={[
-                        {name:"US", value:45, color:"#6366F1"},
-                        {name:"IN", value:25, color:"#3B82F6"},
-                        {name:"GB", value:15, color:"#0D9488"},
-                        {name:"Other", value:15, color:"#E5E7EB"},
-                    ]}/>
-                </div>
-
-                <div className="bg-white p-6 rounded-xl border shadow-sm">
-                    <h3 className="font-semibold text-lg mb-2">Create New Campaign</h3>
-
-                    <button className="btn w-full bg-indigo-600 text-white font-bold p-3 rounded-lg hover:bg-indigo-700">
-                        <MdInsertLink className="inline mr-1"/> Create Link
-                    </button>
-                </div>
-            </div>
-
+      {/* CTA */}
+      <div className="bg-indigo-600 rounded-2xl p-6 text-white flex items-center justify-between">
+        <div>
+          <h3 className="text-lg font-semibold">
+            Create your next link
+          </h3>
+          <p className="text-indigo-200 text-sm">
+            Start tracking clicks instantly
+          </p>
         </div>
-    )
-}
+
+        <button className="bg-white text-indigo-600 px-5 py-2 rounded-lg font-semibold flex items-center gap-2">
+          <MdInsertLink />
+          New Link
+        </button>
+      </div>
+    </div>
+  );
+};
 
 export default DashboardOverviewContent;
