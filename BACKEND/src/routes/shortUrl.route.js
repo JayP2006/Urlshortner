@@ -49,7 +49,7 @@ router.post('/generate-qr-code', attachUser, async (req, res) => {
         res.status(500).json({ message: 'Failed to generate QR code.', error: error.message });
     }
 });
-router.get("/analytics/recent-links", auth, async (req, res) => {
+router.get("/analytics/recent-links", attachUser, async (req, res) => {
   const links = await ShortUrl.find({ user: req.user.id })
     .sort({ createdAt: -1 })
     .limit(5)
