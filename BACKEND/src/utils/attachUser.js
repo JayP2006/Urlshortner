@@ -1,4 +1,3 @@
-
 import jwt from "jsonwebtoken";
 import { findUserById } from "../dao/user.dao.js";
 

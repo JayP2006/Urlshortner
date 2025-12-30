@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import DashboardUI from './components/UrlShortener'; 
+import DashboardUI from './components/Dashboard/DashboardUI';
 import Login from './components/loginForm';
 import Register from './components/registerForm';
 import Home from './components/home';
@@ -19,7 +19,7 @@ const App = () => {
         } />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/contact" element={<ContactUsPage />} /> {/* Route path set to /contact for consistency */}
+        <Route path="/contact" element={<ContactUsPage />} />
       </Routes>
     </Router>
   );

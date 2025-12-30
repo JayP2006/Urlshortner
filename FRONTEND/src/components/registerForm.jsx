@@ -332,7 +332,6 @@ const Register = () => {
       </style>
       
       <div style={styles.container}>
-        {/* Background decorative elements */}
         <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
           <div style={styles.backgroundBlob1}></div>
           <div style={styles.backgroundBlob2}></div>
@@ -340,7 +339,6 @@ const Register = () => {
         </div>
 
         <div style={styles.mainContent}>
-          {/* Logo and Brand */}
           
 
           <div style={styles.card}>
@@ -348,8 +346,6 @@ const Register = () => {
               <h2 style={styles.cardTitle}>Create your account</h2>
               <p style={styles.cardDescription}>Join thousands of users who trust ShortLink Pro</p>
             </div>
-            
-            {/* Social Register Buttons */}
             <div style={styles.socialButtons}>
               <button
                 className="social-button"
@@ -380,8 +376,6 @@ const Register = () => {
               <div style={styles.separatorLine}></div>
               <span style={styles.separatorText}>Or register with email</span>
             </div>
-
-            {/* Register Form */}
             <form onSubmit={handleRegister}>
               <div style={styles.formGroup}>
                 <label htmlFor="name" style={styles.label}>Full Name</label>

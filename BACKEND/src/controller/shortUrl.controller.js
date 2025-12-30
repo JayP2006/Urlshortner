@@ -6,6 +6,9 @@ import bcrypt from 'bcrypt';
 import path from 'path';
 import geoip from 'geoip-lite';
 import mongoose from 'mongoose';
+import ClickStat from '../models/ClickStat.js';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const getUserCountryCode = (req) => {
     if (req.headers['x-country-code']) {
@@ -29,7 +32,7 @@ export const createAndShortenUrl = async (req, res, next) => {
             return res.status(400).json({ message: 'Full URL is required.' });
         }
 
-        const appUrl = 'https://shrinkx-backend.onrender.com';
+        const appUrl = 'http://localhost:3000';
         let generatedShortUrl;
         let qrCodeDataUrl = null;
 
@@ -77,7 +80,7 @@ export const createProtectedAndShortenUrl = async (req, res, next) => {
             return res.status(400).json({ message: 'Full URL and password are required.' });
         }
 
-        const appUrl = 'https://shrinkx-backend.onrender.com';
+        const appUrl = 'http://localhost:3000';
         let generatedShortUrl;
         let qrCodeDataUrl = null;
 
@@ -127,7 +130,7 @@ export const createLocationBasedLink = async (req, res, next) => {
             return res.status(400).json({ message: 'At least one geo-redirection rule is required.' });
         }
 
-        const appUrl = 'https://shrinkx-backend.onrender.com';
+        const appUrl = 'http://localhost:3000';
         let generatedShortUrl;
         let qrCodeDataUrl = null;
 
@@ -186,6 +189,16 @@ export const redirectToFullUrl = async (req, res, next) => {
         urlEntry.clicks++;
         urlEntry.clickDetails.push({ country: userCountryCode });
         await urlEntry.save();
+
+         const now = new Date();
+        const date = now.toISOString().split("T")[0]; // e.g. 2025-12-05
+        const hour = now.getHours(); // 0-23
+
+        await ClickStat.findOneAndUpdate(
+            { urlId: urlEntry._id, date, hour },
+            { $inc: { clicks: 1 } },
+            { upsert: true, new: true }
+        );
 
         if (urlEntry.geo_rules && urlEntry.geo_rules.length > 0) {
             let redirectUrlFound = null;
@@ -300,6 +313,7 @@ export const getUserLinks = async (req, res, next) => {
         const skip = (page - 1) * limit;
         const searchTerm = req.query.search || '';
         const type = req.query.type || 'All Types';
+        const excludeExpired = req.query.excludeExpired; // 🔥 From Frontend
 
         let query = { user: userId, isActive: true };
 
@@ -311,33 +325,33 @@ export const getUserLinks = async (req, res, next) => {
         }
 
         if (type !== 'All Types') {
-            let typeConditions = [{ type: type }]; 
+            let typeConditions = [{ type: type }];
 
             switch (type) {
                 case 'standard':
                     typeConditions.push({
-                        type: { $exists: false }, 
-                        password: { $exists: false }, 
-                        expiresAt: { $exists: false }, 
-                        geo_rules: { $size: 0 } 
+                        type: { $exists: false },
+                        password: { $exists: false },
+                        expiresAt: { $exists: false },
+                        geo_rules: { $size: 0 }
                     });
                     break;
                 case 'protected':
                     typeConditions.push({
                         type: { $exists: false },
-                        password: { $exists: true, $ne: null } 
+                        password: { $exists: true, $ne: null }
                     });
                     break;
                 case 'fire':
                     typeConditions.push({
                         type: { $exists: false },
-                        expiresAt: { $exists: true, $ne: null } 
+                        expiresAt: { $exists: true, $ne: null }
                     });
                     break;
                 case 'location':
                     typeConditions.push({
-                        type: { $exists: false }, 
-                        geo_rules: { $exists: true, $ne: [] } 
+                        type: { $exists: false },
+                        geo_rules: { $exists: true, $ne: [] }
                     });
                     break;
                 case 'custom':
@@ -347,54 +361,46 @@ export const getUserLinks = async (req, res, next) => {
             query = {
                 user: userId,
                 isActive: true,
-                $and: [
-                    { $or: typeConditions } 
-                ]
+                $and: [{ $or: typeConditions }]
             };
+
             if (searchTerm) {
                 query.$and.push({
-                    $or: [ 
+                    $or: [
                         { full_url: { $regex: searchTerm, $options: 'i' } },
                         { short_url: { $regex: searchTerm, $options: 'i' } }
                     ]
                 });
             }
-        } else { 
-            let allTypesConditions = [
-                { type: { $exists: false } },
-                { type: 'standard' },
-                { type: 'custom' },
-                { type: 'protected' },
-                { type: 'fire' },
-                { type: 'location' }
-            ];
 
+        } else {
             query = {
                 user: userId,
-                isActive: true,
-                $and: [
-                    { $or: allTypesConditions }
-                ]
+                isActive: true
             };
-            if (searchTerm) {
-                query.$and.push({
-                    $or: [ 
-                        { full_url: { $regex: searchTerm, $options: 'i' } },
-                        { short_url: { $regex: searchTerm, $options: 'i' } }
-                    ]
-                });
-            }
+        }
+
+
+        // default → expired hidden
+        if (excludeExpired !== "false") {
+            query.$and = query.$and || [];
+            query.$and.push({
+                $or: [
+                    { expiresAt: null },                    
+                    { expiresAt: { $gt: new Date() } }      
+                ]
+            });
         }
 
         const userUrls = await ShortUrl.find(query)
             .sort({ createdAt: -1 })
             .skip(skip)
             .limit(limit);
-            
+
         const totalUrls = await ShortUrl.countDocuments(query);
         const totalPages = Math.ceil(totalUrls / limit);
 
-        res.status(200).json({
+        return res.status(200).json({
             urls: userUrls,
             totalPages,
             currentPage: page

@@ -56,7 +56,10 @@ const shortUrlSchema = new mongoose.Schema({
     timestamp: { type: Date, default: Date.now },
     country: { type: String, required: true },
   }],
-
+  aiTitle: { type: String, default: "" },
+  aiDescription: { type: String, default: "" },
+  aiSummary: { type: String, default: "" },
+  aiFetchedAt: { type: Date },
   type: {
     type: String,
     enum: ['standard', 'custom', 'protected', 'fire', 'location'], 

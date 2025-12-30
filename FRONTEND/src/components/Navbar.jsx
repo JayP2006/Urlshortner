@@ -9,8 +9,6 @@ const Navbar = ({ darkMode, setDarkMode, menuOpen, setMenuOpen }) => {
         <SparklesIcon className="h-7 w-7 text-blue-600 dark:text-blue-400" />
         <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white">ShrinkX</h1>
       </Link>
-
-      {/* Mobile Menu Toggle and Dark Mode Toggle */}
       <div className="flex items-center space-x-4 md:hidden">
         <button
           onClick={() => setDarkMode(!darkMode)}
@@ -36,14 +34,12 @@ const Navbar = ({ darkMode, setDarkMode, menuOpen, setMenuOpen }) => {
         >
           Login
         </Link>
-        {/* FIX: Added 'to="/register"' prop to the Link component for the Register button */}
         <Link
           to="/register" 
           className="px-6 py-3 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold shadow-xl hover:scale-105 transition-all duration-300"
         >
           Register
         </Link>
-        {/* Updated styling for Contact Us button to match "Login" button (gradient, text-white, shadow, hover effects) */}
         <Link
           to="/contact"
           className="px-6 py-3 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold shadow-xl hover:scale-105 transition-all duration-300"
@@ -59,12 +55,10 @@ const Navbar = ({ darkMode, setDarkMode, menuOpen, setMenuOpen }) => {
         </button>
       </div>
 
-      {/* Mobile Menu (rendered conditionally based on menuOpen state) */}
       {menuOpen && (
         <div className="absolute top-full left-0 w-full md:hidden flex flex-col items-center space-y-4 px-4 pt-4 pb-6 bg-white dark:bg-gray-800 shadow-lg animate-fadeIn transition-colors duration-500">
           <Link
             to="/login"
-            // Updated styling for Login button in mobile menu
             className="w-full text-center py-3 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold shadow-xl hover:scale-105 transition-all duration-300"
             onClick={() => setMenuOpen(false)} 
           >
@@ -77,7 +71,6 @@ const Navbar = ({ darkMode, setDarkMode, menuOpen, setMenuOpen }) => {
           >
             Register
           </Link>
-          {/* Updated styling for Contact Us button in mobile menu */}
           <Link
             to="/contact"
             className="w-full text-center py-3 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold shadow-xl hover:scale-105 transition-all duration-300"

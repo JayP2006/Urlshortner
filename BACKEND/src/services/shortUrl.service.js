@@ -1,59 +1,109 @@
 import { generateNanoId } from "../utils/helper.js";
 import ShortUrl from "../models/shortUrl.model.js";
 import bcrypt from 'bcrypt';
+import * as cheerio from "cheerio";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import axios from "axios";
 
-export const createShortUrlEntry = async (fullUrl, customAlias = null, userId = null, expiresAt = null, qrCodeDataUrl = null, type = 'standard') => { // <-- 'type' पैरामीटर जोड़ा गया
+export const createShortUrlEntry = async (
+    fullUrl,
+    customAlias = null,
+    userId = null,
+    expiresAt = null,
+    qrCodeDataUrl = null,
+    type = 'standard'
+) => {
+
     let shortCode;
 
+    // Validate URL
     try {
         new URL(fullUrl);
     } catch (error) {
         throw new Error('Invalid full URL format.');
     }
 
+    // expiry date validation
     if (expiresAt) {
         const expiryDate = new Date(expiresAt);
-        if (isNaN(expiryDate.getTime())) {
-            throw new Error('Invalid expiry date format.');
-        }
-        if (expiryDate <= new Date()) {
-            throw new Error('Expiry date must be in the future.');
-        }
+        if (isNaN(expiryDate.getTime())) throw new Error('Invalid expiry date format.');
+        if (expiryDate <= new Date()) throw new Error('Expiry date must be in the future.');
     }
 
+    // custom alias check
     if (customAlias) {
         const existingUrl = await ShortUrl.findOne({ short_url: customAlias });
-        if (existingUrl) {
-            throw new Error('Custom alias is already in use. Please choose another one.');
-        }
+        if (existingUrl) throw new Error('Custom alias is already in use.');
         shortCode = customAlias;
     } else {
         let isUnique = false;
         let attempts = 0;
-        const MAX_ATTEMPTS = 5;
 
-        while (!isUnique && attempts < MAX_ATTEMPTS) {
+        while (!isUnique && attempts < 5) {
             shortCode = generateNanoId(7);
-            const existingUrl = await ShortUrl.findOne({ short_url: shortCode });
-            if (!existingUrl) {
-                isUnique = true;
-            }
+            const exists = await ShortUrl.findOne({ short_url: shortCode });
+            if (!exists) isUnique = true;
             attempts++;
         }
 
-        if (!isUnique) {
-            throw new Error('Could not generate a unique short URL. Please try again.');
-        }
+        if (!isUnique) throw new Error('Could not generate unique short URL.');
     }
 
+    // -------------------------------
+    // ⭐ DIRECT GEMINI AI (NO API CALL TO YOURSELF)
+    // -------------------------------
+    console.log("Fetching AI preview for URL:", fullUrl);
+    let aiTitle = "";
+    let aiDescription = "";
+    let aiSummary = "";
+
+    try {
+        // HTML meta extraction
+        const html = await axios.get(fullUrl, {
+            headers: { "User-Agent": "Mozilla/5.0 AI-LinkPreviewBot" }
+        });
+
+        const $ = cheerio.load(html.data);
+
+        aiTitle = $("title").text() || "";
+        aiDescription =
+            $('meta[name="description"]').attr("content") ||
+            $('meta[property="og:description"]').attr("content") ||
+            "";
+
+        // Gemini Summary
+        const genAI = new GoogleGenerativeAI("AIzaSyAyptmAXr_DefAptDkMGyvDp7_aGqSI1e0");
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+
+        const prompt = `
+Summarize this webpage in one short professional sentence.
+Title: ${aiTitle}
+Description: ${aiDescription}
+        `;
+
+        const result = await model.generateContent(prompt);
+        aiSummary = result.response.text();
+
+    } catch (err) {
+        console.warn("AI fetch failed:", err.message);
+    }
+
+    // -------------------------------
+    // CREATE NEW SHORT URL ENTRY
+    // -------------------------------
     const newShortUrl = new ShortUrl({
         full_url: fullUrl,
         short_url: shortCode,
         clicks: 0,
         user: userId,
-        expiresAt: expiresAt,
-        qrCodeDataUrl: qrCodeDataUrl,
-        type: type, 
+        expiresAt,
+        qrCodeDataUrl,
+        type,
+
+        aiTitle,
+        aiDescription,
+        aiSummary,
+        aiFetchedAt: aiSummary ? new Date() : null
     });
 
     await newShortUrl.save();

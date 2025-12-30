@@ -21,11 +21,9 @@ const Login = () => {
     
     try {
       const response = await loginUser(email, password);
-      
-      // Store user data in localStorage for frontend access
       localStorage.setItem("user", JSON.stringify(response.data));   
       toast.success(`Welcome back, ${response.data.user.name}!`);
-      setTimeout(() => navigate("/urlshort"), 1500);
+      setTimeout(() => navigate("/urlshort"), 1000);
     } catch (err) {
       console.error("Login error:", err);
       toast.error(err.response?.data?.message || "Login failed. Please check your credentials.");
@@ -37,7 +35,6 @@ const Login = () => {
   const handleSocialLogin = (provider) => {
     alert(`${provider} login integration coming soon!`);
   };
-  // Inline styles with Tailwind-equivalent CSS
   const styles = {
     container: {
       minHeight: '100vh',
@@ -340,7 +337,6 @@ const Login = () => {
       </style>
       
       <div style={styles.container}>
-        {/* Background decorative elements */}
         <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
           <div style={styles.backgroundBlob1}></div>
           <div style={styles.backgroundBlob2}></div>
@@ -348,7 +344,6 @@ const Login = () => {
         </div>
 
         <div style={styles.mainContent}>
-          {/* Logo and Brand */}
           
 
           <div style={styles.card}>
@@ -356,8 +351,6 @@ const Login = () => {
               <h2 style={styles.cardTitle}>Welcome back</h2>
               <p style={styles.cardDescription}>Sign in to your account to continue</p>
             </div>
-            
-            {/* Social Login Buttons */}
             <div style={styles.socialButtons}>
               <button
                 className="social-button"

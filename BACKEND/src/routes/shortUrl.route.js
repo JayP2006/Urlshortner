@@ -1,7 +1,12 @@
 import express from 'express';
 import { createAndShortenUrl, redirectToFullUrl, getUserLinks, deleteShortUrl, createProtectedAndShortenUrl, createLocationBasedLink, getAnalyticsSummary } from '../controller/shortUrl.controller.js';
 import { attachUser } from '../utils/attachUser.js';
+import { getAIPreview } from '../controller/aiPreviewController.js'
+import { getDashboardHourlyStats } from "../controller/analyticsSummary.js";
 import QRCode from 'qrcode'; 
+import { getUrlAnalytics } from '../controller/analyticsController.js';
+import { generateClickPredictionForUrl } from '../services/predictionService.js';
+import { getPredictions } from '../controller/prediction.controller.js';
 
 const router = express.Router();
 
@@ -11,7 +16,7 @@ router.post('/location-shorten', attachUser, createLocationBasedLink);
 
 router.get('/my-urls', attachUser, getUserLinks);
 router.delete('/:id',attachUser,deleteShortUrl);
-
+router.post("/ai-preview", getAIPreview);
 router.get('/analytics/summary', attachUser, getAnalyticsSummary);
 
 
@@ -42,6 +47,9 @@ router.post('/generate-qr-code', attachUser, async (req, res) => {
         res.status(500).json({ message: 'Failed to generate QR code.', error: error.message });
     }
 });
+router.get("/analytics/predictions", getPredictions);
+router.get("/analytics/summary/hourly", getDashboardHourlyStats);
+router.get("/:id/analytics",attachUser , getUrlAnalytics);
 
 router.get('/:shortCode', redirectToFullUrl); 
 

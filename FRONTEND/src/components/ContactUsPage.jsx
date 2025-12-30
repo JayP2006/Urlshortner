@@ -1,8 +1,5 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-// Heroicons imports removed as per request to resolve 'EnvelopeIcon is not defined' error.
-// Icons replaced with emojis or simple text for now.
-
 const ContactUsPage = () => {
   const [formData, setFormData] = useState({
     name: '',
@@ -10,7 +7,7 @@ const ContactUsPage = () => {
     subject: '',
     message: '',
   });
-  const [status, setStatus] = useState(''); // To display submission status
+  const [status, setStatus] = useState('');
 
   const handleChange = (e) => {
     const { id, value } = e.target;
@@ -23,10 +20,7 @@ const ContactUsPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setStatus('Submitting...');
-    // Simulate API call
     try {
-      // In a real application, you would send this data to your backend API endpoint
-      // For example, if you have a backend at '/api/send-email' that handles email sending:
       /*
       const response = await fetch('/api/send-email', {
         method: 'POST',
@@ -46,10 +40,10 @@ const ContactUsPage = () => {
       }
       */
 
-      console.log('Form Data Submitted (simulated):', formData); // For now, just log to console
-      await new Promise((resolve) => setTimeout(resolve, 1500)); // Simulate network delay
+      console.log('Form Data Submitted (simulated):', formData);
+      await new Promise((resolve) => setTimeout(resolve, 1500));
       setStatus('Message sent successfully! We will get back to you soon.');
-      setFormData({ name: '', email: '', subject: '', message: '' }); // Clear form
+      setFormData({ name: '', email: '', subject: '', message: '' });
     } catch (error) {
       console.error('Error submitting contact form:', error);
       setStatus('Failed to send message. Please try again later.');
@@ -91,7 +85,6 @@ const ContactUsPage = () => {
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              {/* Icon replaced with emoji for now */}
               <span className="text-purple-600 dark:text-purple-400 text-3xl">📞</span>
               <div>
                 <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Call Us</h3>
@@ -103,12 +96,10 @@ const ContactUsPage = () => {
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              {/* Icon replaced with emoji for now */}
               
             </div>
           </div>
 
-          {/* Contact Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Your Name</label>
