@@ -14,12 +14,14 @@ import {
   Tooltip
 } from "recharts";
 
-/* ---------------- TIME HELPERS ---------------- */
+/* ================= TIME HELPER (SINGLE SOURCE OF TRUTH) ================= */
 
-// For createdAt (exact timestamp)
 const timeAgo = (date) => {
+  if (!date) return "";
+
   const diffMs = Date.now() - new Date(date).getTime();
   const mins = Math.floor(diffMs / 60000);
+
   if (mins < 1) return "just now";
   if (mins < 60) return `${mins} min ago`;
 
@@ -30,17 +32,11 @@ const timeAgo = (date) => {
   return `${days} day${days > 1 ? "s" : ""} ago`;
 };
 
-// For ClickStat (date + hour bucket)
-const timeAgoFromHour = (date, hour) => {
-  const d = new Date(`${date}T${String(hour).padStart(2, "0")}:00:00`);
-  return timeAgo(d);
-};
-
-/* ---------------- SMALL UI COMPONENTS ---------------- */
+/* ================= SMALL UI ================= */
 
 const StatCard = ({ title, value, icon: Icon, loading }) => (
   <motion.div
-    initial={{ opacity: 0, y: 12 }}
+    initial={{ opacity: 0, y: 14 }}
     animate={{ opacity: 1, y: 0 }}
     className="bg-white rounded-2xl border p-6 shadow-sm hover:shadow-md transition"
   >
@@ -55,7 +51,7 @@ const StatCard = ({ title, value, icon: Icon, loading }) => (
   </motion.div>
 );
 
-/* ---------------- MAIN COMPONENT ---------------- */
+/* ================= MAIN COMPONENT ================= */
 
 const DashboardOverviewContent = ({ user, API_BASE_URL }) => {
   const [stats, setStats] = useState(null);
@@ -85,16 +81,17 @@ const DashboardOverviewContent = ({ user, API_BASE_URL }) => {
         setHourlyData(await hourlyRes.json());
         setRecentLinks(await linksRes.json());
         setRecentActivity(await activityRes.json());
-      } catch (e) {
-        console.error(e);
+
+      } catch (err) {
+        console.error("Dashboard load error:", err);
       } finally {
         setLoading(false);
       }
     };
 
     load();
-    const interval = setInterval(load, 30000);
-    return () => clearInterval(interval);
+    const i = setInterval(load, 30000);
+    return () => clearInterval(i);
   }, [API_BASE_URL]);
 
   return (
@@ -106,7 +103,7 @@ const DashboardOverviewContent = ({ user, API_BASE_URL }) => {
           Welcome back, {user?.name}
         </h1>
         <p className="text-gray-500 mt-2">
-          Real-time overview powered by live backend data
+          Live dashboard powered by real backend analytics
         </p>
       </div>
 
@@ -141,7 +138,7 @@ const DashboardOverviewContent = ({ user, API_BASE_URL }) => {
         )}
       </div>
 
-      {/* ACTIVITY SECTIONS */}
+      {/* LISTS */}
       <div className="grid md:grid-cols-2 gap-6">
 
         {/* NEW LINKS */}
@@ -152,15 +149,22 @@ const DashboardOverviewContent = ({ user, API_BASE_URL }) => {
             <p className="text-gray-400 text-sm">No links created yet</p>
           ) : (
             recentLinks.map(link => (
-              <div key={link._id} className="flex justify-between py-2 text-sm border-b last:border-none">
-                <span className="font-medium text-indigo-600">/{link.short_url}</span>
-                <span className="text-gray-400">{timeAgo(link.createdAt)}</span>
+              <div
+                key={link._id}
+                className="flex justify-between py-2 text-sm border-b last:border-none"
+              >
+                <span className="font-medium text-indigo-600">
+                  /{link.short_url}
+                </span>
+                <span className="text-gray-400">
+                  {timeAgo(link.createdAt)}
+                </span>
               </div>
             ))
           )}
         </div>
 
-        {/* RECENT ACTIVITY */}
+        {/* RECENT ACTIVITY – FIXED TIME */}
         <div className="bg-white rounded-2xl border p-6">
           <h3 className="font-semibold mb-4">Recent Activity</h3>
 
@@ -168,15 +172,19 @@ const DashboardOverviewContent = ({ user, API_BASE_URL }) => {
             <p className="text-gray-400 text-sm">No activity yet</p>
           ) : (
             recentActivity.map(a => (
-              <div key={a._id} className="flex justify-between py-2 text-sm border-b last:border-none">
+              <div
+                key={a._id}
+                className="flex justify-between py-2 text-sm border-b last:border-none"
+              >
                 <span>
                   <span className="font-medium text-indigo-600">
                     /{a.urlId?.short_url}
                   </span>{" "}
                   received {a.clicks} clicks
                 </span>
+
                 <span className="text-gray-400">
-                  {timeAgoFromHour(a.date, a.hour)}
+                  {timeAgo(a.updatedAt || a.createdAt)}
                 </span>
               </div>
             ))
@@ -192,7 +200,7 @@ const DashboardOverviewContent = ({ user, API_BASE_URL }) => {
             Create your next link
           </h3>
           <p className="text-indigo-200 text-sm">
-            Everything here updates automatically from real analytics
+            Everything updates automatically from real analytics
           </p>
         </div>
 
