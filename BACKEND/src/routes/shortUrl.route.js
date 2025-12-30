@@ -7,6 +7,8 @@ import QRCode from 'qrcode';
 import { getUrlAnalytics } from '../controller/analyticsController.js';
 import { generateClickPredictionForUrl } from '../services/predictionService.js';
 import { getPredictions } from '../controller/prediction.controller.js';
+import ShortUrl from '../models/shortUrl.model.js';
+import ClickStat from '../models/ClickStat.js';
 
 const router = express.Router();
 
@@ -47,6 +49,23 @@ router.post('/generate-qr-code', attachUser, async (req, res) => {
         res.status(500).json({ message: 'Failed to generate QR code.', error: error.message });
     }
 });
+router.get("/analytics/recent-links", auth, async (req, res) => {
+  const links = await ShortUrl.find({ userId: req.user.id })
+    .sort({ createdAt: -1 })
+    .limit(5)
+    .select("shortCode createdAt active");
+
+  res.json(links);
+});
+router.get("/analytics/recent-activity", auth, async (req, res) => {
+  const activity = await ClickStat.find()
+    .sort({ date: -1, hour: -1 })
+    .limit(5)
+    .populate("urlId", "shortCode");
+
+  res.json(activity);
+});
+
 router.get("/analytics/predictions", getPredictions);
 router.get("/analytics/summary/hourly", getDashboardHourlyStats);
 router.get("/:id/analytics",attachUser , getUrlAnalytics);
