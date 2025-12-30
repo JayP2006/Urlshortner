@@ -1,5 +1,5 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
-const genAI = new GoogleGenerativeAI("AIzaSyAyptmAXr_DefAptDkMGyvDp7_aGqSI1e0");
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 export const generatePrediction = async (pastClicks) => {
 

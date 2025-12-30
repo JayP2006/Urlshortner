@@ -72,7 +72,7 @@ export const createShortUrlEntry = async (
             "";
 
         // Gemini Summary
-        const genAI = new GoogleGenerativeAI("AIzaSyAyptmAXr_DefAptDkMGyvDp7_aGqSI1e0");
+        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
         const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
         const prompt = `
