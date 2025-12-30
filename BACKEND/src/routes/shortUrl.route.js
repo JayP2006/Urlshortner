@@ -58,12 +58,16 @@ router.get("/analytics/recent-links", attachUser, async (req, res) => {
   res.json(links);
 });
 router.get("/analytics/recent-activity", attachUser, async (req, res) => {
-  const activity = await ClickStat.find()
-    .sort({ date: -1, hour: -1 })
-    .limit(5)
-    .populate("urlId", "shortCode");
+  try {
+    const activity = await ClickStat.find()
+      .sort({ date: -1, hour: -1 })
+      .limit(5)
+      .populate("urlId", "short_url");
 
-  res.json(activity);
+    res.json(activity);
+  } catch (e) {
+    res.status(500).json({ message: "Failed to load activity" });
+  }
 });
 
 router.get("/analytics/predictions", getPredictions);
