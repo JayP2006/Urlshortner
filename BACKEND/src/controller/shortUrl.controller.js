@@ -8,6 +8,7 @@ import geoip from 'geoip-lite';
 import mongoose from 'mongoose';
 import ClickStat from '../models/ClickStat.js';
 import dotenv from 'dotenv';
+import { redisClient } from '../config/redis.config.js';
 dotenv.config();
 
 const getUserCountryCode = (req) => {
