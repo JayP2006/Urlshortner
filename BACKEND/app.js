@@ -12,7 +12,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import { attachUser } from "./src/utils/attachUser.js";
 import nodemailer from "nodemailer";
-
+import { connectRedis } from "./src/config/redis.config.js";
 import { monitortrafficSpikes } from "./cron/predictionCron.js";
 
 // Start CRON after env loaded
