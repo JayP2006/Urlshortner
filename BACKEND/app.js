@@ -63,7 +63,16 @@ app.get("/:shortCode", redirectToFullUrl);
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    connectDB();
-    console.log(`Server is running on http://localhost:${PORT}`);
-});
+const startServer = async () => {
+
+    await connectDB();
+
+    await connectRedis();
+
+    app.listen(PORT, () => {
+        console.log(`Server is running on http://localhost:${PORT}`);
+    });
+
+};
+
+startServer();
