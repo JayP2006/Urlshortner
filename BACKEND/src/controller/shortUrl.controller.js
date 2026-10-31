@@ -302,115 +302,297 @@ export const redirectToFullUrl = async (req, res, next) => {
 };
 
 export const getUserLinks = async (req, res, next) => {
+
     try {
+
         const userId = req.user ? req.user._id : null;
+
         if (!userId) {
-            return res.status(401).json({ message: 'Unauthorized. Please log in.' });
+            return res.status(401).json({
+                message: 'Unauthorized. Please log in.'
+            });
         }
+
 
         const page = parseInt(req.query.page) || 1;
         const limit = 10;
         const skip = (page - 1) * limit;
+
         const searchTerm = req.query.search || '';
         const type = req.query.type || 'All Types';
-        const excludeExpired = req.query.excludeExpired; // 🔥 From Frontend
+        const excludeExpired = req.query.excludeExpired;
 
-        let query = { user: userId, isActive: true };
 
-        if (searchTerm) {
-            query.$or = [
-                { full_url: { $regex: searchTerm, $options: 'i' } },
-                { short_url: { $regex: searchTerm, $options: 'i' } }
-            ];
+        // STEP 1: CREATE REDIS CACHE KEY
+
+        const cacheKey = `user-links:${userId}:${page}:${searchTerm}:${type}:${excludeExpired}`;
+
+
+        // STEP 2: CHECK REDIS CACHE
+
+        if (redisClient?.isReady) {
+
+            try {
+
+                const cachedData = await redisClient.get(cacheKey);
+
+                if (cachedData) {
+
+                    console.log("User URLs Cache HIT");
+
+                    return res.status(200).json(
+                        JSON.parse(cachedData)
+                    );
+
+                }
+
+            } catch (error) {
+
+                console.log("Redis GET error:", error.message);
+
+            }
+
         }
 
+
+        // STEP 3: BUILD MONGODB QUERY
+
+        let query = {
+            user: userId,
+            isActive: true
+        };
+
+
+        if (searchTerm) {
+
+            query.$or = [
+                {
+                    full_url: {
+                        $regex: searchTerm,
+                        $options: 'i'
+                    }
+                },
+                {
+                    short_url: {
+                        $regex: searchTerm,
+                        $options: 'i'
+                    }
+                }
+            ];
+
+        }
+
+
         if (type !== 'All Types') {
+
             let typeConditions = [{ type: type }];
 
             switch (type) {
+
                 case 'standard':
+
                     typeConditions.push({
                         type: { $exists: false },
                         password: { $exists: false },
                         expiresAt: { $exists: false },
                         geo_rules: { $size: 0 }
                     });
+
                     break;
+
+
                 case 'protected':
+
                     typeConditions.push({
                         type: { $exists: false },
-                        password: { $exists: true, $ne: null }
+                        password: {
+                            $exists: true,
+                            $ne: null
+                        }
                     });
+
                     break;
+
+
                 case 'fire':
+
                     typeConditions.push({
                         type: { $exists: false },
-                        expiresAt: { $exists: true, $ne: null }
+                        expiresAt: {
+                            $exists: true,
+                            $ne: null
+                        }
                     });
+
                     break;
+
+
                 case 'location':
+
                     typeConditions.push({
                         type: { $exists: false },
-                        geo_rules: { $exists: true, $ne: [] }
+                        geo_rules: {
+                            $exists: true,
+                            $ne: []
+                        }
                     });
+
                     break;
+
+
                 case 'custom':
+
                     break;
+
             }
+
 
             query = {
                 user: userId,
                 isActive: true,
-                $and: [{ $or: typeConditions }]
+                $and: [
+                    {
+                        $or: typeConditions
+                    }
+                ]
             };
 
+
             if (searchTerm) {
+
                 query.$and.push({
                     $or: [
-                        { full_url: { $regex: searchTerm, $options: 'i' } },
-                        { short_url: { $regex: searchTerm, $options: 'i' } }
+                        {
+                            full_url: {
+                                $regex: searchTerm,
+                                $options: 'i'
+                            }
+                        },
+                        {
+                            short_url: {
+                                $regex: searchTerm,
+                                $options: 'i'
+                            }
+                        }
                     ]
                 });
+
             }
 
         } else {
+
             query = {
                 user: userId,
                 isActive: true
             };
+
+            if (searchTerm) {
+
+                query.$or = [
+                    {
+                        full_url: {
+                            $regex: searchTerm,
+                            $options: 'i'
+                        }
+                    },
+                    {
+                        short_url: {
+                            $regex: searchTerm,
+                            $options: 'i'
+                        }
+                    }
+                ];
+
+            }
+
         }
 
 
-        // default → expired hidden
+        // STEP 4: HIDE EXPIRED URLS BY DEFAULT
+
         if (excludeExpired !== "false") {
+
             query.$and = query.$and || [];
+
             query.$and.push({
+
                 $or: [
-                    { expiresAt: null },                    
-                    { expiresAt: { $gt: new Date() } }      
+                    {
+                        expiresAt: null
+                    },
+                    {
+                        expiresAt: {
+                            $gt: new Date()
+                        }
+                    }
                 ]
+
             });
+
         }
+
+
+        // STEP 5: FETCH DATA FROM MONGODB
 
         const userUrls = await ShortUrl.find(query)
             .sort({ createdAt: -1 })
             .skip(skip)
             .limit(limit);
 
+
         const totalUrls = await ShortUrl.countDocuments(query);
+
         const totalPages = Math.ceil(totalUrls / limit);
 
-        return res.status(200).json({
+
+        // STEP 6: PREPARE RESPONSE
+
+        const responseData = {
+
             urls: userUrls,
+
             totalPages,
+
             currentPage: page
-        });
+
+        };
+
+
+        // STEP 7: STORE RESPONSE IN REDIS
+
+        if (redisClient?.isReady) {
+
+            try {
+
+                await redisClient.set(
+                    cacheKey,
+                    JSON.stringify(responseData),
+                    {
+                        EX: 60
+                    }
+                );
+
+                console.log("User URLs Cache MISS - Saved in Redis");
+
+            } catch (error) {
+
+                console.log("Redis SET error:", error.message);
+
+            }
+
+        }
+
+
+        return res.status(200).json(responseData);
+
 
     } catch (error) {
-        next(error);
-    }
-};
 
+        next(error);
+
+    }
+
+};
 export const generateQrCode = async (req, res) => {
     const { url } = req.body;
 
