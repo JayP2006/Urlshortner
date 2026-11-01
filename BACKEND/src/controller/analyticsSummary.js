@@ -1,5 +1,5 @@
 import ClickStat from "../models/ClickStat.js";
-import redisClient from "../config/redis.config.js";
+import {redisClient} from "../config/redis.config.js";
 
 export const getDashboardHourlyStats = async (req, res) => {
     try {
