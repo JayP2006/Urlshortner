@@ -9,7 +9,7 @@ import { generateClickPredictionForUrl } from '../services/predictionService.js'
 import { getPredictions } from '../controller/prediction.controller.js';
 import ShortUrl from '../models/shortUrl.model.js';
 import ClickStat from '../models/ClickStat.js';
-
+import { redisClient } from '../config/redis.config.js';
 const router = express.Router();
 
 router.post('/shorten', attachUser, createAndShortenUrl);
@@ -50,23 +50,78 @@ router.post('/generate-qr-code', attachUser, async (req, res) => {
     }
 });
 router.get("/analytics/recent-links", attachUser, async (req, res) => {
- 
-  const links = await ShortUrl.find({ user: req.user.id })
-    .sort({ createdAt: -1 })
-    .limit(5)
-    .select("short_url createdAt isActive");
+    try {
+        const userId = req.user._id;
+        const cacheKey = `recent-links:${userId}`;
 
-  res.json(links);
+        // Check Redis
+        try {
+            const cachedData = await redisClient.get(cacheKey);
+
+            if (cachedData) {
+                console.log("RECENT recent link CACHE HIT");
+                return res.json(JSON.parse(cachedData));
+            }
+        } catch (err) {
+            console.error("Redis GET Error:", err.message);
+        }
+
+        console.log("RECENT LINKS CACHE MISS");
+
+        const links = await ShortUrl.find({ user: userId })
+            .sort({ createdAt: -1 })
+            .limit(5)
+            .select("short_url createdAt isActive");
+
+        // Save in Redis
+        try {
+            await redisClient.setEx(cacheKey, 60, JSON.stringify(links));
+        } catch (err) {
+            console.error("Redis SET Error:", err.message);
+        }
+
+        res.json(links);
+
+    } catch (err) {
+        res.status(500).json({ message: "Server error" });
+    }
 });
 router.get("/analytics/recent-activity", attachUser, async (req, res) => {
-  const activity = await ClickStat.find()
-    .sort({ date: -1, hour: -1 })
-    .limit(5)
-    .populate("urlId", "shortCode");
+    try {
+        const cacheKey = `recent-activity:${req.user._id}`;
 
-  res.json(activity);
+        // Check Redis
+        try {
+            const cachedData = await redisClient.get(cacheKey);
+
+            if (cachedData) {
+                console.log("RECENT ACTIVITY CACHE HIT");
+                return res.json(JSON.parse(cachedData));
+            }
+        } catch (err) {
+            console.error("Redis GET Error:", err.message);
+        }
+
+        console.log("RECENT ACTIVITY CACHE MISS");
+
+        const activity = await ClickStat.find()
+            .sort({ date: -1, hour: -1 })
+            .limit(5)
+            .populate("urlId", "shortCode");
+
+        // Save in Redis
+        try {
+            await redisClient.setEx(cacheKey, 60, JSON.stringify(activity));
+        } catch (err) {
+            console.error("Redis SET Error:", err.message);
+        }
+
+        res.json(activity);
+
+    } catch (err) {
+        res.status(500).json({ message: "Server error" });
+    }
 });
-
 
 router.get("/analytics/predictions", getPredictions);
 router.get("/analytics/summary/hourly", getDashboardHourlyStats);
